@@ -6,11 +6,14 @@ typedef struct Node {
     struct Node *next;
 } Node;
 
-void printList(Node* root);
+void printList(Node *root);
 void prependList(Node **root, int value);
 void appendList(Node **root, int value);
 void insertAfter(Node **root, int index, int value);
-void insertSorted(Node** root, int value);
+void insertSorted(Node **root, int value);
+void filterList(Node *root);
+void removeDescending(Node *root, int value);
+float calcAverage(Node *root);
 void deallocList(Node **root);
 
 int main() {
@@ -19,7 +22,7 @@ int main() {
     Node *root = { 0 };
 
     while(1) {
-        printf("Enter a number: ");
+        printf("\nEnter a number: ");
         scanf("%d", &input);
         if (input < 1) {
             break;
@@ -40,9 +43,13 @@ int main() {
         printList(root);
     }
 
+    printList(root);
+    filterList(root);
+
     deallocList(&root);
     return 0;
 }
+// SOS #############################################################
 void printList(Node *root) {
     if (root != 0) {
         printf("%d->", root->value);
@@ -106,19 +113,79 @@ void insertAfter(Node **root, int index, int value) {
     }
     printf("Index not found!\n");
 }
+// SOS #############################################################
 void insertSorted(Node **root, int value) {
     if ((*root == NULL) || ((*root)->value >= value)) {
         prependList(root, value);
         return;
     }
 
-    Node *curr;
-    for (curr = *root; curr->next != NULL; curr = curr->next) {
-        if (curr->next->value >= value) {
-            break;
+    Node *curr, *prev, *after;
+    for (curr = *root; curr != NULL; curr = curr->next) {
+
+        if (value > curr->value) {
+            prev = curr;
+            if (curr->next != NULL) {
+                after = curr->next;
+            } else {
+                after = NULL;
+            }
         }
     }
-    insertAfter(root, curr->value, value);
+
+    Node *new_node = malloc(sizeof(Node));
+    new_node->value = value;
+    new_node->next = after;
+    prev->next = new_node;
+
+    //insertAfter(root, curr->value, value);
+}
+// SOS #############################################################
+void filterList(Node *root) {
+    int value = { 0 };
+    printf("\nEnter min: ");
+    scanf("%d", &value);
+
+    removeDescending(root, value);
+};
+// SOS #############################################################
+void removeDescending(Node *root, int value) {
+
+    if (root == NULL || root->next == NULL) {
+        printf("\nList is empty!");
+        return;
+    }
+
+    int deleted = 0;
+    float old_average = calcAverage(root);
+
+    Node *curr = root;
+    while (curr->next != NULL) {
+        if (curr->value < value) {
+            root = curr->next;
+            deleted++;
+
+            printList(root);
+        }
+        curr = curr->next;
+    }
+
+    printf("Deleted nodes: %d", deleted);
+    printf("\nOld average: %0.2f", old_average);
+    printf("\nNew average: %0.2f", calcAverage(root));
+}
+// SOS #############################################################
+float calcAverage(Node *root) {
+    int indexes = 1;    // weil nicht vom Null begginen soll. Wir iterieren nicht, sondern die Elemente zählen.
+    float sum   = 0;
+
+    sum = root->value;
+    for (Node *curr = root; curr->next != NULL; curr = curr->next) {
+        indexes++;
+        sum += curr->next->value;
+    }
+
+    return sum / indexes;
 }
 void deallocList(Node **root) {
     Node *curr = *root;
