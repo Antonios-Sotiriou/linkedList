@@ -159,15 +159,13 @@ void removeDescending(Node *root, int value) {
     int deleted = 0;
     float old_average = calcAverage(root);
 
-    Node *curr = root;
-    while (curr->next != NULL) {
+    for (Node *curr = root; curr != NULL; curr = curr->next) {
         if (curr->value < value) {
             root = curr->next;
             deleted++;
 
             printList(root);
         }
-        curr = curr->next;
     }
 
     printf("Deleted nodes: %d", deleted);
@@ -176,13 +174,12 @@ void removeDescending(Node *root, int value) {
 }
 // SOS #############################################################
 float calcAverage(Node *root) {
-    int indexes = 1;    // weil nicht vom Null begginen soll. Wir iterieren nicht, sondern die Elemente zählen.
-    float sum   = 0;
+    int indexes = 0;    // weil nicht vom Null begginen soll. Wir iterieren nicht, sondern die Elemente zählen.
+    float sum   = 0.f;
 
-    sum = root->value;
-    for (Node *curr = root; curr->next != NULL; curr = curr->next) {
+    for (Node *curr = root; curr != NULL; curr = curr->next) {
         indexes++;
-        sum += curr->next->value;
+        sum += curr->value;
     }
 
     return sum / indexes;
